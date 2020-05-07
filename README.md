@@ -4,7 +4,7 @@ OpenVINO project to count the number of people in a video frame.
 
 
 ## Planning
-- [x] install OpenVINO  -- Done
+- [x] install OpenVINO
 - [ ] Modify the backend part which will send mqtt request to node & UI (deploy the basic version first)
 - [ ] Modify the UI based on requirements and my own ideas
 - [ ] Do survey of model achitechtures used in literature for this app/task
