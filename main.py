@@ -40,6 +40,10 @@ MQTT_HOST = IPADDRESS
 MQTT_PORT = 3001
 MQTT_KEEPALIVE_INTERVAL = 60
 
+CPU_EXTENSION = "/opt/intel/openvino/deployment_tools/inference_engine/lib/intel64/libcpu_extension_sse4.so"
+CLASSES = ['road', 'sidewalk', 'building', 'wall', 'fence', 'pole', 
+'traffic_light', 'traffic_sign', 'vegetation', 'terrain', 'sky', 'person',
+'rider', 'car', 'truck', 'bus', 'train', 'motorcycle', 'bicycle', 'ego-vehicle']
 
 def build_argparser():
     """
@@ -70,8 +74,9 @@ def build_argparser():
 
 def connect_mqtt():
     ### TODO: Connect to the MQTT client ###
-    client = None
-
+    client = mqtt.Client()
+    client.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
+    
     return client
 
 
@@ -90,21 +95,39 @@ def infer_on_stream(args, client):
     prob_threshold = args.prob_threshold
 
     ### TODO: Load the model through `infer_network` ###
-
+    infer_network.load_model(args.m, args.d, CPU_EXTENSION)
+    net_input_shape = infer_network.get_input_shape()
     ### TODO: Handle the input stream ###
-
+    cap = cv2.VideoCapture(args.i)
+    cap.open(args.i)
+    width = int(cap.get(3))
+    height = int(cap.get(4))
     ### TODO: Loop until stream is over ###
+    while cap.isOpened():
 
         ### TODO: Read from the video capture ###
-
+        flag, frame = cap.read()
+        if not flag:
+            break
+        key_pressed = cv2.waitKey(60)
         ### TODO: Pre-process the image as needed ###
+        p_frame = cv2.resize(frame, (net_input_shape[3], net_input_shape[2]))
+        p_frame = p_frame.transpose((2,0,1))
+        p_frame = p_frame.reshape(1, *p_frame.shape)
 
         ### TODO: Start asynchronous inference for specified request ###
+        infer_network.exec_net(p_frame)
 
         ### TODO: Wait for the result ###
-
+        # Get the output of inference
+        if infer_network.wait() == 0:
+            result = infer_network.extract_output()
             ### TODO: Get the results of the inference request ###
-
+            out_frame, classes = draw_masks(result, width, height)
+            class_names = get_class_names(classes)
+            classes = np.asfarray(classes, dtype='int8').tolist()
+            client.publish("class", json.dumps({"class_names": class_names}))
+            
             ### TODO: Extract any desired stats from the results ###
 
             ### TODO: Calculate and send relevant information on ###
@@ -113,7 +136,11 @@ def infer_on_stream(args, client):
             ### Topic "person/duration": key of "duration" ###
 
         ### TODO: Send the frame to the FFMPEG server ###
-
+        sys.stdout.buffer.write(out_frame)
+        sys.stdout.flush()
+        
+        if key_pressed == 27:
+            break
         ### TODO: Write an output image if `single_image_mode` ###
 
 
