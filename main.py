@@ -26,6 +26,7 @@ import time
 import socket
 import json
 import cv2
+import numpy as np
 
 import logging as log
 import paho.mqtt.client as mqtt
@@ -79,6 +80,27 @@ def connect_mqtt():
     
     return client
 
+def get_class_names(class_nums):
+    class_names= []
+    for i in class_nums:
+        class_names.append(CLASSES[int(i)])
+    return class_names
+
+def draw_masks(result, width, height):
+    '''
+    Draw semantic mask classes onto the frame.
+    '''
+    # Create a mask with color by class
+    classes = cv2.resize(result[0].transpose((1,2,0)), (width,height), 
+        interpolation=cv2.INTER_NEAREST)
+    unique_classes = np.unique(classes)
+    out_mask = classes * (255/20)
+    
+    # Stack the mask so FFmpeg understands it
+    out_mask = np.dstack((out_mask, out_mask, out_mask))
+    out_mask = np.uint8(out_mask)
+
+    return out_mask, unique_classes
 
 def infer_on_stream(args, client):
     """
@@ -90,18 +112,20 @@ def infer_on_stream(args, client):
     :return: None
     """
     # Initialise the class
+    print(args)
     infer_network = Network()
     # Set Probability threshold for detections
     prob_threshold = args.prob_threshold
 
     ### TODO: Load the model through `infer_network` ###
-    infer_network.load_model(args.m, args.d, CPU_EXTENSION)
+    infer_network.load_model(args.model, args.device)
     net_input_shape = infer_network.get_input_shape()
     ### TODO: Handle the input stream ###
-    cap = cv2.VideoCapture(args.i)
-    cap.open(args.i)
+    cap = cv2.VideoCapture(args.input)
+    cap.open(args.input)
     width = int(cap.get(3))
     height = int(cap.get(4))
+    print(width, height)
     ### TODO: Loop until stream is over ###
     while cap.isOpened():
 
@@ -121,9 +145,11 @@ def infer_on_stream(args, client):
         ### TODO: Wait for the result ###
         # Get the output of inference
         if infer_network.wait() == 0:
-            result = infer_network.extract_output()
+            result = infer_network.get_output()
+            # print(result)
             ### TODO: Get the results of the inference request ###
             out_frame, classes = draw_masks(result, width, height)
+
             class_names = get_class_names(classes)
             classes = np.asfarray(classes, dtype='int8').tolist()
             client.publish("class", json.dumps({"class_names": class_names}))

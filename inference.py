@@ -75,7 +75,7 @@ class Network:
         ### TODO: Return the shape of the input layer ###
         return self.network.inputs[self.input_blob].shape
 
-    def exec_net(self):
+    def exec_net(self, image):
         ### TODO: Start an asynchronous request ###
         ### TODO: Return any necessary information ###
         ### Note: You may need to update the function parameters. ###
@@ -93,4 +93,7 @@ class Network:
     def get_output(self):
         ### TODO: Extract and return the output results
         ### Note: You may need to update the function parameters. ###
+        # print(self.exec_network.requests[0].outputs)
+        # print("Output",self.output_blob)
+        
         return self.exec_network.requests[0].outputs[self.output_blob]
