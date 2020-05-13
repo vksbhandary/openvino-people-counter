@@ -41,10 +41,6 @@ MQTT_HOST = IPADDRESS
 MQTT_PORT = 3001
 MQTT_KEEPALIVE_INTERVAL = 60
 
-CPU_EXTENSION = "/opt/intel/openvino/deployment_tools/inference_engine/lib/intel64/libcpu_extension_sse4.so"
-CLASSES = ['road', 'sidewalk', 'building', 'wall', 'fence', 'pole', 
-'traffic_light', 'traffic_sign', 'vegetation', 'terrain', 'sky', 'person',
-'rider', 'car', 'truck', 'bus', 'train', 'motorcycle', 'bicycle', 'ego-vehicle']
 
 def build_argparser():
     """
@@ -80,11 +76,11 @@ def connect_mqtt():
     
     return client
 
-def get_class_names(class_nums):
-    class_names= []
-    for i in class_nums:
-        class_names.append(CLASSES[int(i)])
-    return class_names
+# def get_class_names(class_nums):
+#     class_names= []
+#     for i in class_nums:
+#         class_names.append(CLASSES[int(i)])
+#     return class_names
 
 def draw_masks(result, width, height):
     '''
@@ -112,7 +108,7 @@ def infer_on_stream(args, client):
     :return: None
     """
     # Initialise the class
-    print(args)
+    # print(args)
     infer_network = Network()
     # Set Probability threshold for detections
     prob_threshold = args.prob_threshold
@@ -147,12 +143,17 @@ def infer_on_stream(args, client):
         if infer_network.wait() == 0:
             result = infer_network.get_output()
             # print(result)
+            print(result.shape)
+            break
             ### TODO: Get the results of the inference request ###
-            out_frame, classes = draw_masks(result, width, height)
+            # out_frame, classes = draw_masks(result, width, height)
+            # print(classes.shape)
 
-            class_names = get_class_names(classes)
-            classes = np.asfarray(classes, dtype='int8').tolist()
-            client.publish("class", json.dumps({"class_names": class_names}))
+            # class_names = get_class_names(classes)
+            # classes = np.asfarray(classes, dtype='int8').tolist()
+            # print(classes)
+            # break
+            # client.publish("class", json.dumps({"class_names": class_names}))
             
             ### TODO: Extract any desired stats from the results ###
 
@@ -162,8 +163,8 @@ def infer_on_stream(args, client):
             ### Topic "person/duration": key of "duration" ###
 
         ### TODO: Send the frame to the FFMPEG server ###
-        sys.stdout.buffer.write(out_frame)
-        sys.stdout.flush()
+        # sys.stdout.buffer.write(out_frame)
+        # sys.stdout.flush()
         
         if key_pressed == 27:
             break

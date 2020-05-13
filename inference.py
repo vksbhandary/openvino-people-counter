@@ -95,5 +95,7 @@ class Network:
         ### Note: You may need to update the function parameters. ###
         # print(self.exec_network.requests[0].outputs)
         # print("Output",self.output_blob)
+        # for i in iter(self.network.outputs):
+            # print(self.exec_network.requests[0].outputs[i].shape)
         
         return self.exec_network.requests[0].outputs[self.output_blob]

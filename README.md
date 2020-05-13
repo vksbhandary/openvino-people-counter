@@ -22,11 +22,18 @@ source /opt/intel/openvino/bin/setupvars.sh -pyver 3.7
 git clone https://github.com/mystic123/tensorflow-yolo-v3
 git checkout ed60b900
 cd ..
-python3 tensorflow-yolo-v3/convert_weights.py --class_names coco.names --weights_file yolov3.weights --ckpt_file chk/chkpoint 
 
-python3 tensorflow-yolo-v3/convert_weights_pb.py --class_names coco.names  --data_format NHWC --weights_file chk/chkpoint.meta 
+python3 tensorflow-yolo-v3/convert_weights_pb.py --class_names coco.names --data_format NHWC --weights_file yolov3.weights
 
 
 python3 /opt/intel/openvino/deployment_tools/model_optimizer/mo_tf.py --input_model frozen_darknet_yolov3_model.pb --tensorflow_use_custom_operations_config /opt/intel/openvino/deployment_tools/model_optimizer/extensions/front/tf/yolo_v3.json --batch 1
+
+```
+
+
+## converting SSD
+
+```
+python3 /opt/intel/openvino/deployment_tools/model_optimizer/mo_tf.py --input_model=frozen_inference_graph.pb --transformations_config /opt/intel/openvino/deployment_tools/model_optimizer/extensions/front/tf/ssd_v2_support.json --tensorflow_object_detection_api_pipeline_config ssd_inception_v2_coco_2018_01_28/pipeline.config --reverse_input_channels
 
 ```
