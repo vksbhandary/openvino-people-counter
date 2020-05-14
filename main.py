@@ -82,21 +82,23 @@ def connect_mqtt():
 #         class_names.append(CLASSES[int(i)])
 #     return class_names
 
-def draw_masks(result, width, height):
+def draw_masks(frame, result, args, width, height):
     '''
     Draw semantic mask classes onto the frame.
     '''
     # Create a mask with color by class
-    classes = cv2.resize(result[0].transpose((1,2,0)), (width,height), 
-        interpolation=cv2.INTER_NEAREST)
-    unique_classes = np.unique(classes)
-    out_mask = classes * (255/20)
-    
-    # Stack the mask so FFmpeg understands it
-    out_mask = np.dstack((out_mask, out_mask, out_mask))
-    out_mask = np.uint8(out_mask)
-
-    return out_mask, unique_classes
+    classes = []
+    for box in result[0][0]: # Output shape is 1x1x100x7
+        conf = box[2]
+        if box[1] not in classes:
+            classes.append(box[1])
+        if conf >= args.prob_threshold:
+            xmin = int(box[3] * width)
+            ymin = int(box[4] * height)
+            xmax = int(box[5] * width)
+            ymax = int(box[6] * height)
+            cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 0, 255), 1)
+    return frame, classes
 
 def infer_on_stream(args, client):
     """
@@ -121,7 +123,7 @@ def infer_on_stream(args, client):
     cap.open(args.input)
     width = int(cap.get(3))
     height = int(cap.get(4))
-    print(width, height)
+    # print(width, height)
     ### TODO: Loop until stream is over ###
     while cap.isOpened():
 
@@ -143,10 +145,10 @@ def infer_on_stream(args, client):
         if infer_network.wait() == 0:
             result = infer_network.get_output()
             # print(result)
-            print(result.shape)
-            break
+            # print(result.shape)
+            
             ### TODO: Get the results of the inference request ###
-            # out_frame, classes = draw_masks(result, width, height)
+            frame, classes = draw_masks(frame, result, args, width, height)
             # print(classes.shape)
 
             # class_names = get_class_names(classes)
@@ -163,8 +165,8 @@ def infer_on_stream(args, client):
             ### Topic "person/duration": key of "duration" ###
 
         ### TODO: Send the frame to the FFMPEG server ###
-        # sys.stdout.buffer.write(out_frame)
-        # sys.stdout.flush()
+        sys.stdout.buffer.write(frame)
+        sys.stdout.flush()
         
         if key_pressed == 27:
             break
