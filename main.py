@@ -90,8 +90,8 @@ def draw_masks(frame, result, args, width, height):
     classes = []
     for box in result[0][0]: # Output shape is 1x1x100x7
         conf = box[2]
-        if box[1] not in classes:
-            classes.append(box[1])
+        if int(box[1]) not in classes:
+            classes.append(int(box[1]))
         if conf >= args.prob_threshold:
             xmin = int(box[3] * width)
             ymin = int(box[4] * height)
@@ -138,6 +138,7 @@ def infer_on_stream(args, client):
         p_frame = p_frame.reshape(1, *p_frame.shape)
 
         ### TODO: Start asynchronous inference for specified request ###
+        
         infer_network.exec_net(p_frame)
 
         ### TODO: Wait for the result ###
@@ -155,7 +156,7 @@ def infer_on_stream(args, client):
             # classes = np.asfarray(classes, dtype='int8').tolist()
             # print(classes)
             # break
-            # client.publish("class", json.dumps({"class_names": class_names}))
+            client.publish("class", json.dumps({"class_names": classes}))
             
             ### TODO: Extract any desired stats from the results ###
 

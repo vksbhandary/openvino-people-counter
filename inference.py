@@ -26,7 +26,7 @@ import os
 import sys
 import logging as log
 from openvino.inference_engine import IENetwork, IECore
-
+import numpy as np
 
 class Network:
     """
@@ -66,7 +66,7 @@ class Network:
         self.exec_network = self.plugin.load_network(self.network, device)
 
         # Get the input layer
-        self.input_blob = next(iter(self.network.inputs))
+        self.input_blob = 'image_tensor' # next(iter(self.network.inputs))
         self.output_blob = next(iter(self.network.outputs))
 
         return
@@ -79,8 +79,13 @@ class Network:
         ### TODO: Start an asynchronous request ###
         ### TODO: Return any necessary information ###
         ### Note: You may need to update the function parameters. ###
+        b =self.network.inputs['image_tensor'].shape[0]
+        H = self.network.inputs['image_tensor'].shape[2]
+        W = self.network.inputs['image_tensor'].shape[3]
+        arr = np.array([[H, W, 1]], dtype=np.int16)
+         
         self.exec_network.start_async(request_id=0, 
-            inputs={self.input_blob: image})
+            inputs={self.input_blob: image, 'image_info':arr})
         return
 
     def wait(self):
