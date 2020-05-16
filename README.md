@@ -38,7 +38,7 @@ python3 /opt/intel/openvino/deployment_tools/model_optimizer/mo_tf.py --input_mo
 
 ```
 
-## converting Faster RCNN RESNET 101 coco
+## converting Faster RCNN  Inception COCO model
 
 ```
 python3 /opt/intel/openvino/deployment_tools/model_optimizer/mo_tf.py --input_model frozen_inference_graph.pb --tensorflow_object_detection_api_pipeline_config pipeline.config --transformations_config /opt/intel/openvino/deployment_tools/model_optimizer/extensions/front/tf/faster_rcnn_support.json --reverse_input_channels --input_shape=[1,600,1024,3] --input=image_tensor --output=detection_scores,detection_boxes,num_detections

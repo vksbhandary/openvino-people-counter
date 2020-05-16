@@ -66,7 +66,14 @@ class Network:
         self.exec_network = self.plugin.load_network(self.network, device)
 
         # Get the input layer
-        self.input_blob = 'image_tensor' # next(iter(self.network.inputs))
+        total_input = 0
+        for i in iter(self.network.inputs):
+            total_input = total_input+1
+
+        if total_input>1: # incase of faster RCNN models
+            self.input_blob = 'image_tensor' #
+        else:
+            self.input_blob = next(iter(self.network.inputs))
         self.output_blob = next(iter(self.network.outputs))
 
         return
@@ -75,27 +82,35 @@ class Network:
         ### TODO: Return the shape of the input layer ###
         return self.network.inputs[self.input_blob].shape
 
-    def exec_net(self, image):
+    def exec_net(self, cur_request_id,image):
         ### TODO: Start an asynchronous request ###
         ### TODO: Return any necessary information ###
         ### Note: You may need to update the function parameters. ###
-        b =self.network.inputs['image_tensor'].shape[0]
-        H = self.network.inputs['image_tensor'].shape[2]
-        W = self.network.inputs['image_tensor'].shape[3]
-        arr = np.array([[H, W, 1]], dtype=np.int16)
-         
-        self.exec_network.start_async(request_id=0, 
-            inputs={self.input_blob: image, 'image_info':arr})
+        total_input = 0
+        for i in iter(self.network.inputs):
+            total_input = total_input+1
+        if total_input>1:
+            b =self.network.inputs['image_tensor'].shape[0]
+            H = self.network.inputs['image_tensor'].shape[2]
+            W = self.network.inputs['image_tensor'].shape[3]
+            arr = np.array([[H, W, 1]], dtype=np.int16)
+             
+            self.exec_network.start_async(request_id=cur_request_id, 
+                inputs={'image_tensor': image, 'image_info':arr})
+        else:
+            self.exec_network.start_async(request_id=cur_request_id, 
+                inputs={self.input_blob: image})
+
         return
 
-    def wait(self):
+    def wait(self,  cur_request_id):
         ### TODO: Wait for the request to be complete. ###
         ### TODO: Return any necessary information ###
         ### Note: You may need to update the function parameters. ###
-        status = self.exec_network.requests[0].wait(-1)
+        status = self.exec_network.requests[cur_request_id].wait(-1)
         return status
 
-    def get_output(self):
+    def get_output(self, cur_request_id):
         ### TODO: Extract and return the output results
         ### Note: You may need to update the function parameters. ###
         # print(self.exec_network.requests[0].outputs)
@@ -103,4 +118,4 @@ class Network:
         # for i in iter(self.network.outputs):
             # print(self.exec_network.requests[0].outputs[i].shape)
         
-        return self.exec_network.requests[0].outputs[self.output_blob]
+        return self.exec_network.requests[cur_request_id].outputs[self.output_blob]
