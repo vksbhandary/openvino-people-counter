@@ -101,8 +101,7 @@ def draw_masks(frame, result, args, width, height):
             ymin = int(box[4] * height)
             xmax = int(box[5] * width)
             ymax = int(box[6] * height)
-            color = (min(box[1] * 12.5, 255), min(box[1] * 7, 255), min(box[1] * 5, 255))
-            cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 1)
+            cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 0, 255), 1)
     return frame, classes, count
 
 def infer_on_stream(args, client):

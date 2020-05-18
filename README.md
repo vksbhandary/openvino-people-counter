@@ -1,13 +1,13 @@
 # OpenVINO Project 1: People Counter App
 
-| Requirements  |   Preffered version  |
+| Requirements  |   version used  |
 |-----------------------|---------------|
 | Openvino |  2020.2.120 |
-| Programming Language: |  Python 3.5 or heigher (worked on 3.7) |
+| Programming Language: |  Python 3.7 |
 | Node |  v11.15.0 |
 | Python mqtt client |  latest |
-| FFmpeg |  3.4.6 (tested on linux) |
-| Ubuntu |  18.04.4 (tested) |
+| FFmpeg |  3.4.6 |
+| Ubuntu |  18.04.4 |
 
 ![people-counter-python](./images/people-counter-image.png)
 
@@ -48,9 +48,9 @@ You will choose a model to use and convert it with the Model Optimizer.
 Refer to https://software.intel.com/en-us/articles/OpenVINO-Install-Linux for more information about how to install and setup the Intel® Distribution of OpenVINO™ toolkit.
 
 
-### Install Nodejs and its dependencies
+### Install Nodejs and other dependencies
 
-Use [node version manager](https://nodejs.org/en/download/package-manager/#nvm) or other package manager (like brew) to install node version v11.15.0 (web UI doesnt compile for latest versions so it is necessary to install v11.15.0 version only).
+Use [node version manager](https://nodejs.org/en/download/package-manager/#nvm) or other package manager (like brew) to install node version v11.15.0 (web UI doesnt compile for latest versions node so it is necessary to install node v11.15.0 version only).
    ```
    nvm install 11.15.0
 
