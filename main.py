@@ -40,7 +40,7 @@ HOSTNAME = socket.gethostname()
 IPADDRESS = socket.gethostbyname(HOSTNAME)
 MQTT_HOST = IPADDRESS
 MQTT_PORT = 3001
-MQTT_KEEPALIVE_INTERVAL = 60
+MQTT_KEEPALIVE_INTERVAL = 120
 
 
 def build_argparser():
@@ -64,7 +64,7 @@ def build_argparser():
                              "CPU, GPU, FPGA or MYRIAD is acceptable. Sample "
                              "will look for a suitable plugin for device "
                              "specified (CPU by default)")
-    parser.add_argument("-pt", "--prob_threshold", type=float, default=0.5,
+    parser.add_argument("-pt", "--prob_threshold", type=float, default=0.3,
                         help="Probability threshold for detections filtering"
                         "(0.5 by default)")
     return parser
@@ -101,7 +101,8 @@ def draw_masks(frame, result, args, width, height):
             ymin = int(box[4] * height)
             xmax = int(box[5] * width)
             ymax = int(box[6] * height)
-            cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 0, 255), 1)
+            color = (min(box[1] * 12.5, 255),box min(box[1] * 7, 255), min(box[1] * 5, 255))
+            cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 1)
     return frame, classes, count
 
 def infer_on_stream(args, client):
@@ -182,24 +183,26 @@ def infer_on_stream(args, client):
             # print(classes.shape)
             inference_message = "Inference time: {:.3f}ms".format(stop_time * 1000)
             cv2.putText(frame, inference_message, (15, 15), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255,0,0), 1)
+            
+            ### TODO: Extract any desired stats from the results ###
+            ### TODO: Calculate and send relevant information on ###
+            ### current_count, total_count and duration to the MQTT server ###
+            ### Topic "person": keys of "count" and "total" ###
+            ### Topic "person/duration": key of "duration" ###
 
-            if current_count > last_count: # New entry
+            # When new person enters the video
+            if current_count > last_count:
                 duration_time = time.time()
                 total_count = total_count + current_count - last_count
                 client.publish("person", json.dumps({"total": total_count}))            
-            
-            if current_count < last_count: # Average Time
+            # Person duration in the video is calculated
+            if current_count < last_count: #
                 duration = int(time.time() - duration_time) 
                 client.publish("person/duration", json.dumps({"duration": duration}))
 
             client.publish("person", json.dumps({"count": current_count})) # People Count
             last_count = current_count
-            ### TODO: Extract any desired stats from the results ###
-
-            ### TODO: Calculate and send relevant information on ###
-            ### current_count, total_count and duration to the MQTT server ###
-            ### Topic "person": keys of "count" and "total" ###
-            ### Topic "person/duration": key of "duration" ###
+            
 
 
         ### TODO: Send the frame to the FFMPEG server ###
@@ -212,6 +215,12 @@ def infer_on_stream(args, client):
         #Save the Image
         if single_img_flag:
             cv2.imwrite('output_image.jpg', frame)
+
+        # releasing all resources
+        cap.release()
+        cv2.destroyAllWindows()
+        client.disconnect()
+        infer_network.clean()
 
 def main():
     """
