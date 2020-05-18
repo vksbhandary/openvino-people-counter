@@ -1,10 +1,10 @@
 # OpenVINO Project 1: People Counter App
 
-| Details            |              |
+| Requirements  |   Preffered version  |
 |-----------------------|---------------|
-| Openvino |  v11.15.0 |
-| Programming Language: |  Python 3.5 or 3.6 or 3.7 (worked on 3.7) |
-| Node : |  v11.15.0 |
+| Openvino |  2020.2.120 |
+| Programming Language: |  Python 3.5 or heigher (worked on 3.7) |
+| Node |  v11.15.0 |
 | Python mqtt client |  latest |
 | FFmpeg |  3.4.6 (tested on linux) |
 | Ubuntu |  18.04.4 (tested) |

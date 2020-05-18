@@ -40,7 +40,7 @@ HOSTNAME = socket.gethostname()
 IPADDRESS = socket.gethostbyname(HOSTNAME)
 MQTT_HOST = IPADDRESS
 MQTT_PORT = 3001
-MQTT_KEEPALIVE_INTERVAL = 120
+MQTT_KEEPALIVE_INTERVAL = 60
 
 
 def build_argparser():
@@ -101,7 +101,7 @@ def draw_masks(frame, result, args, width, height):
             ymin = int(box[4] * height)
             xmax = int(box[5] * width)
             ymax = int(box[6] * height)
-            color = (min(box[1] * 12.5, 255),box min(box[1] * 7, 255), min(box[1] * 5, 255))
+            color = (min(box[1] * 12.5, 255), min(box[1] * 7, 255), min(box[1] * 5, 255))
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 1)
     return frame, classes, count
 
@@ -217,10 +217,9 @@ def infer_on_stream(args, client):
             cv2.imwrite('output_image.jpg', frame)
 
         # releasing all resources
-        cap.release()
-        cv2.destroyAllWindows()
-        client.disconnect()
-        infer_network.clean()
+    cap.release()
+    cv2.destroyAllWindows()
+    client.disconnect()
 
 def main():
     """
