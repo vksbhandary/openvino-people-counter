@@ -106,16 +106,15 @@ Note that you may need to do additional processing of the output to handle incor
 
 ## Converting the used models
 
-The application can be run using various pretrained models. Here is the link which lists all the supported pre-trained TensorFlow models. https://docs.openvinotoolkit.org/latest/_docs_MO_DG_prepare_model_convert_model_Convert_Model_From_TensorFlow.html
+The application can be run using various pretrained models. [Here](https://docs.openvinotoolkit.org/latest/_docs_MO_DG_prepare_model_convert_model_Convert_Model_From_TensorFlow.html) is the link which lists all the supported pre-trained TensorFlow models. 
 
-Add a `models` folder to save models locally.
-
+To save models add a `models` folder.
 
 ```
 mkdir models
 ```
 
-### Converting SSD MobileNet V1 COCO*
+### Converting SSD MobileNet V1 COCO
 
 ```
 cd models/
