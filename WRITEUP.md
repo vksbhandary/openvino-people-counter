@@ -83,7 +83,7 @@ python3 /opt/intel/openvino/deployment_tools/model_optimizer/mo.py --input_model
 | [SSD MobileNet V2 COCO](http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_coco_2018_03_29.tar.gz)  |   FP32  |  67 Mb | 22 |  ~69ms |
 | [Faster R-CNN Inception V2 COCO](http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_v2_coco_2018_01_28.tar.gz)  |   FP16  |  27 Mb | 28 |  ~1259ms |
 | [SSD ResNet50 FPN COCO](http://download.tensorflow.org/models/object_detection/ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03.tar.gz)  |   FP16  |  103 Mb | 32 |  ~2590ms |
-| [Intel's pretrained person-detection-retail-0013 ](https://docs.openvinotoolkit.org/latest/_models_intel_person_detection_retail_0013_description_person_detection_retail_0013.html)  |   FP32  |  1.4 Mb | ~21 (similar to SSD Mobilenet v1 coco) |  ~47ms |
+| [Intel's pretrained person-detection-retail-0013 ](https://docs.openvinotoolkit.org/latest/_models_intel_person_detection_retail_0013_description_person_detection_retail_0013.html)  |   FP16  |  1.4 Mb | ~21 (similar to SSD Mobilenet v1 coco) |  ~47ms |
 
 Note :
 1. the inference time is average time taken to infer a video frame on a virtual machine provided by udacity for classroom exercise. Inference time can vary based on performance of a machine.
