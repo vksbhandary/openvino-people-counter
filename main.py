@@ -42,6 +42,7 @@ MQTT_HOST = IPADDRESS
 MQTT_PORT = 3001
 MQTT_KEEPALIVE_INTERVAL = 60
 
+CPU_EXTENSION = "/opt/intel/openvino/deployment_tools/inference_engine/lib/intel64/libcpu_extension_sse4.so"
 
 def build_argparser():
     """
@@ -55,7 +56,7 @@ def build_argparser():
     parser.add_argument("-i", "--input", required=True, type=str,
                         help="Path to image or video file")
     parser.add_argument("-l", "--cpu_extension", required=False, type=str,
-                        default=None,
+                        default=CPU_EXTENSION,
                         help="MKLDNN (CPU)-targeted custom layers."
                              "Absolute path to a shared library with the"
                              "kernels impl.")
@@ -121,11 +122,12 @@ def infer_on_stream(args, client):
     single_img_flag = False
     total_count = 0
     total_frames = 0
+    total_inference_time = 0
     last_count = 0
     duration_time = 0
     cur_request_id = 0
     ### TODO: Load the model through `infer_network` ###
-    infer_network.load_model(args.model, args.device)
+    infer_network.load_model(args.model, args.device, args.cpu_extension)
     net_input_shape = infer_network.get_input_shape()
     ### TODO: Handle the input stream ###
     video_file = args.input
@@ -174,6 +176,7 @@ def infer_on_stream(args, client):
         if infer_network.wait(cur_request_id) == 0:
             stop_time = time.time() - start_time
             result = infer_network.get_output(cur_request_id)
+            total_frames = total_frames +1
             # print(result)
             # print(result.shape)
             
@@ -182,6 +185,9 @@ def infer_on_stream(args, client):
             # print(classes.shape)
             inference_message = "Inference time: {:.3f}ms".format(stop_time * 1000)
             cv2.putText(frame, inference_message, (15, 15), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255,0,0), 1)
+            total_inference_time =  total_inference_time + stop_time * 1000
+            avg_message = "Average time: {:.3f}ms".format(total_inference_time/total_frames)
+            cv2.putText(frame, avg_message, (15, 35), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255,0,0), 1)
             
             ### TODO: Extract any desired stats from the results ###
             ### TODO: Calculate and send relevant information on ###

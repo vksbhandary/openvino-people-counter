@@ -56,12 +56,16 @@ class Network:
         self.plugin = IECore()
 
         # Add a CPU extension, if applicable
-        if cpu_extension and "CPU" in device:
+        if os.path.isfile(cpu_extension)  and "CPU" in device:
             self.plugin.add_extension(cpu_extension, device)
 
         # Read the IR as a IENetwork
-        # self.network = IENetwork(model=model_xml, weights=model_bin)
-        self.network = self.plugin.read_network(model=model_xml, weights=model_bin)
+        if os.path.isfile(cpu_extension) :
+            # considring its old openvino versio which requires extentions to be loaded
+            self.network = IENetwork(model=model_xml, weights=model_bin)
+        else:
+            # new openvino versions dont need extention
+            self.network = self.plugin.read_network(model=model_xml, weights=model_bin)
         # Load the IENetwork into the plugin
         self.exec_network = self.plugin.load_network(self.network, device)
 
